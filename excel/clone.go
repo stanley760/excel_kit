@@ -22,7 +22,7 @@ func CombaineSheetData() {
 	pathName := infinite.NewText(
 		text.WithPrompt("请输入文档路径(可选,默认为当前文件夹下的同名excel文件):"),
 		text.WithPromptStyle(theme.DefaultTheme.PromptStyle),
-		text.WithDefaultValue("orignal.xlsx"),
+		text.WithDefaultValue("original.xlsx"),
 	)
 	path, err := pathName.Display()
 	if err != nil {
@@ -189,6 +189,7 @@ func optTable(file *excelize.File) {
 	}
 	// 设置工作簿的默认工作表
 	nf.SetActiveSheet(ns)
+
 	if err := nf.SaveAs("数据整合后表格.xlsx"); err != nil {
 		panic(err)
 	}
