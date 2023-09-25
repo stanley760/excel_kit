@@ -68,8 +68,6 @@ func chooseSheet(file *excelize.File) ([]string, []int, error) {
 	list := file.GetSheetList()
 
 	display, err := configMultiselect(list, "请选择需要匹配的工作薄名称[空格：选中；enter:确认]：")
-	fmt.Println("------------------------")
-	fmt.Println("选中工作薄为:", display)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -132,7 +130,6 @@ func chooseColCell(file *excelize.File, sheets []string, arr []int) (map[string]
 		rows, err := file.GetRows(cur)
 		// 获取选中的列单元
 		cell, err := configSingleselect(rows[0], "请选择工作薄:"+cur+"需要匹配的列名[enter:确认]")
-		fmt.Println("当前工作薄的单元格数据：", rows)
 		for i, row := range rows {
 			if idx == 0 {
 				if i == 0 {
@@ -159,6 +156,7 @@ func chooseColCell(file *excelize.File, sheets []string, arr []int) (map[string]
 			panic(err)
 		}
 	}
+
 	return firstData, allMatchslice
 }
 
@@ -190,7 +188,6 @@ func optTable(file *excelize.File) {
 			}
 		}
 	}
-	fmt.Println("最终数据list:", firstData)
 	list := make([]string, 0, len(firstData))
 	for k := range firstData {
 		list = append(list, k)
