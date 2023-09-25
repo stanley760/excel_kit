@@ -1,8 +1,10 @@
 package main
 
-import "excel_kit/custom"
+import (
+	"excel_kit/excel"
+)
 
 func main() {
-	// excel.CombaineSheetData()
-	custom.NewWindows("excel工具箱", 650, 400)
+	excel.CombaineSheetData()
+	// custom.NewWindows("excel工具箱", 650, 400)
 }
