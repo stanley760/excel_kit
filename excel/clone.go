@@ -1,6 +1,7 @@
 package excel
 
 import (
+	"excel_kit/utils"
 	"excel_kit/validator"
 	"fmt"
 	"github.com/charmbracelet/bubbles/key"
@@ -172,6 +173,7 @@ func optTable(file *excelize.File) {
 		for k := range firstData {
 			if k == "title" {
 				firstData["title"] = append(firstData["title"], data["title"]...)
+
 			} else {
 				for ke, va := range data {
 					if ke == "title" {
@@ -183,11 +185,30 @@ func optTable(file *excelize.File) {
 					curkey = space.ReplaceAllString(curkey, "")
 					if strings.Contains(curkey, matches) {
 						firstData[k] = append(firstData[k], va...)
+						delete(data, ke)
 					}
 				}
 			}
 		}
 	}
+	// combaine the unique elements to firstData.
+	fmt.Println("剩余元素：", allMatchDatas)
+	extendColLen := len(allMatchDatas[0]["title"])
+	delete(allMatchDatas[0], "title")
+	if len(allMatchDatas) > 0 && !utils.ContainsKey(allMatchDatas[0], "title") {
+		cols := len(firstData["title"])
+		for _, data := range allMatchDatas {
+			for k, v := range data {
+				sli := []string{k}
+				for i := 1; i < (cols - extendColLen); i++ {
+					sli = append(sli, "")
+				}
+				newVal := append(sli, v...)
+				firstData[k] = append(firstData[k], newVal...)
+			}
+		}
+	}
+	fmt.Println("firstData:", firstData)
 	list := make([]string, 0, len(firstData))
 	for k := range firstData {
 		list = append(list, k)
