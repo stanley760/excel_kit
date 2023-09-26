@@ -192,7 +192,6 @@ func optTable(file *excelize.File) {
 		}
 	}
 	// combaine the unique elements to firstData.
-	fmt.Println("剩余元素：", allMatchDatas)
 	extendColLen := len(allMatchDatas[0]["title"])
 	delete(allMatchDatas[0], "title")
 	if len(allMatchDatas) > 0 && !utils.ContainsKey(allMatchDatas[0], "title") {
@@ -208,7 +207,6 @@ func optTable(file *excelize.File) {
 			}
 		}
 	}
-	fmt.Println("firstData:", firstData)
 	list := make([]string, 0, len(firstData))
 	for k := range firstData {
 		list = append(list, k)
@@ -238,10 +236,21 @@ func optTable(file *excelize.File) {
 	}
 	// 设置工作簿的默认工作表
 	nf.SetActiveSheet(ns)
-	err = nf.SaveAs("数据整合后表格.xlsx")
+	newFile := "数据整合后表格.xlsx"
+	utils.DeleteFile(newFile)
+	err = nf.SaveAs(newFile)
+
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("任务完成.......")
+	if utils.ExistFile(newFile) {
+		err := utils.OpenFileManager(newFile)
+		if err != nil {
+			os.Exit(0)
+		}
+	}
+
 }
 
 func configExcelStyle(f *excelize.File, sheet string, data []string) int {
