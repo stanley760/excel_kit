@@ -22,19 +22,10 @@ import (
 func CombaineSheetData() {
 	// choose the file
 	path := chooseFile()
-	file, err := excelize.OpenFile(path, excelize.Options{})
-	if err != nil {
-		log.Printf("打开excel失败")
-		fmt.Printf("异常：%+v\n", err)
-		return
-	}
-	defer func() {
-		if err := file.Close(); err != nil {
-			panic(err)
-		}
-	}()
+	// format the file data
+	newPath := format(path)
 	// opt table.
-	optTable(file)
+	optTable(newPath)
 }
 
 func chooseFile() string {
@@ -162,7 +153,18 @@ func chooseColCell(file *excelize.File, sheets []string, arr []int) (map[string]
 }
 
 // optTable opearte the table.
-func optTable(file *excelize.File) {
+func optTable(newPath string) {
+	file, err := excelize.OpenFile(newPath, excelize.Options{})
+	if err != nil {
+		log.Printf("打开excel失败")
+		fmt.Printf("异常：%+v\n", err)
+		return
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic(err)
+		}
+	}()
 	sheets, arr, err := chooseSheet(file)
 	firstData, allMatchDatas := chooseColCell(file, sheets, arr)
 	reg := regexp.MustCompile(`[\p{Han}]+`)
@@ -236,8 +238,8 @@ func optTable(file *excelize.File) {
 	}
 	// 设置工作簿的默认工作表
 	nf.SetActiveSheet(ns)
-	newFile := "数据整合后表格.xlsx"
-	utils.DeleteFile(newFile)
+	newFile := utils.NewFileNameWithTimestramp("数据整合.xlsx")
+	utils.DeleteFile(newPath)
 	err = nf.SaveAs(newFile)
 
 	if err != nil {
@@ -273,4 +275,61 @@ func configExcelStyle(f *excelize.File, sheet string, data []string) int {
 		panic(err)
 	}
 	return style
+}
+
+func format(path string) string {
+	f, err := excelize.OpenFile(path, excelize.Options{})
+	if err != nil {
+		log.Printf("打开excel失败")
+		fmt.Printf("异常：%+v\n", err)
+		os.Exit(0)
+		return ""
+	}
+	// 获取工作表名称
+	allSheets := f.GetSheetList()
+	for i := 0; i < len(allSheets); i++ {
+		sheetName := allSheets[i]
+
+		// 获取工作表的列数
+		colCount, err := f.GetRows(sheetName)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+
+		// 遍历列，找到第一个非空列的索引
+		var firstNonEmptyCol int
+		for i := 1; i <= len(colCount[0]); i++ {
+			colLetter, _ := excelize.ColumnNumberToName(i)
+			cellValue, err := f.GetCellValue(sheetName, colLetter+"1") // 假设需要判断第一行的数据是否为空
+			if err != nil {
+				fmt.Println(err)
+				break
+			}
+			if cellValue != "" {
+				firstNonEmptyCol = i
+				break
+			}
+		}
+
+		delCell, err := excelize.ColumnNumberToName(firstNonEmptyCol - 1)
+		if delCell == "" {
+			break
+		}
+		// 删除前面的空白列
+		err = f.RemoveCol(sheetName, delCell)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+	// 保存修改后的 Excel 文件
+	newPath := utils.NewFileNameWithTimestramp(path)
+	err = f.SaveAs(newPath)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(0)
+		return ""
+	}
+	return newPath
 }

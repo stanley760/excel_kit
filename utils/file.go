@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
+	"time"
 )
 
 func DeleteFile(filePath string) bool {
@@ -31,4 +33,11 @@ func ExistFile(fileName string) bool {
 		return false
 	}
 	return true
+}
+
+func NewFileNameWithTimestramp(name string) string {
+	split := strings.Split(name, ".")
+	now := time.Now().Format("2006-01-02 15:04:05")
+	now = strings.ReplaceAll(now, ":", "-")
+	return fmt.Sprintf("%s%s.%s", split[0], now, split[1])
 }
