@@ -37,7 +37,6 @@ func ExistFile(fileName string) bool {
 
 func NewFileNameWithTimestramp(name string) string {
 	split := strings.Split(name, ".")
-	now := time.Now().Format("2006-01-02 15:04:05")
-	now = strings.ReplaceAll(now, ":", "-")
-	return fmt.Sprintf("%s%s.%s", split[0], now, split[1])
+	now := time.Now().Format("2006-01-02_15-04-05")
+	return fmt.Sprintf("%s-%s.%s", split[0], now, split[1])
 }
